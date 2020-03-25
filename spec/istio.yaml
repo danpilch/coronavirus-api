@@ -1,0 +1,71 @@
+---
+# Implement an istio gateway and assign it to the default
+# ingressgateway
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: coronavirus-gateway
+  namespace: cv
+spec:
+  selector:
+    istio: ingressgateway # use Istio default gateway implementation
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+    tls:
+      httpsRedirect: true
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    hosts:
+    - "coronavirus.importos.xyz"
+    tls:
+      mode: SIMPLE
+      credentialName: ingress-cert
+      privateKey: sds
+      serverCertificate: sds
+---
+# Implement a VirtualService to define application uri routes
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: coronavirus-vs
+  namespace: cv
+spec:
+  hosts:
+  - "coronavirus.importos.xyz"
+  gateways:
+  - coronavirus-gateway
+  http:
+  - match:
+    - uri:
+       prefix: /api/version
+    - uri:
+       prefix: /api/health
+    - uri:
+       prefix: /api/county/all
+    - uri:
+       prefix: /table/county/all
+    - uri:
+       prefix: /api/county/total
+    - uri:
+       regex: '^\/api\/county\/search\/[a-zA-Z0-9]*$'
+    route:
+    - destination:
+        host: coronavirus-service
+        port:
+          number: 80
+  # Expose Grafana
+  - match:
+    - uri:
+       regex: '^\/grafana.*$'
+    route:
+    - destination:
+        host: coronavirus-db-service
+        port:
+          number: 3000

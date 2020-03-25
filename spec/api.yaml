@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coronavirus-deployment
+  namespace: cv
+  labels:
+    app: coronavirus
+    version: v1
+spec:
+  replicas: 4 
+  selector:
+    matchLabels:
+      app: coronavirus
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: coronavirus
+        version: v1
+    spec:
+      containers:
+      # Stored in local repo
+      # (repo setup out of scope)       
+      - name: coronavirus
+        image: 192.168.0.28:5000/cv-api:16 
+        ports:
+        - containerPort: 5000
+        env:
+        - name: VERSION
+          value: 0.0.16
+        - name: APP_DEBUG
+          value: "false"
+        - name: MYSQL_HOST
+          value: coronavirus-db-service
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-config
+              key: MYSQL_USER_USERNAME
+        - name: MYSQL_PASS
+          valueFrom:
+            secretKeyRef:
+              name: mysql-config
+              key: MYSQL_USER_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: coronavirus-service
+  namespace: cv
+spec:
+  selector:
+    app: coronavirus
+    version: v1
+  ports:
+  - name: http-coronavirus
+    protocol: TCP
+    port: 80
+    targetPort: 5000

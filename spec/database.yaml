@@ -1,0 +1,116 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: coronavirus-db-service
+  namespace: cv
+spec:
+  ports:
+  - port: 3000
+    name: grafana
+  - port: 3306
+    name: mysql
+  - port: 8080
+    name: adminer
+  selector:
+    app: coronavirus-db
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv-volume
+  namespace: cv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  persistentVolumeReclaimPolicy: Delete
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/mysql-data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim
+  namespace: cv
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coronavirus-db
+  namespace: cv
+spec:
+  selector:
+    matchLabels:
+      app: coronavirus-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: coronavirus-db
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: grafana/grafana:master
+        name: grafana
+        env:
+          - name: GF_SERVER_ROOT_URL
+            value: /grafana
+          - name: GF_SERVER_SERVE_FROM_SUB_PATH
+            value: "true"
+        ports:
+          - containerPort: 3000
+            name: grafana
+      - image: adminer
+        name: adminer
+        ports:
+          - containerPort: 8080
+            name: adminer
+      - image: mariadb
+        name: mysql
+        env:
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: mysql-config
+              key: MYSQL_DATABASE_NAME
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-config
+              key: MYSQL_ROOT_PASSWORD
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-config
+              key: MYSQL_USER_USERNAME
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-config
+              key: MYSQL_USER_PASSWORD
+        args:
+          - --character-set-server=utf8mb4
+          - --collation-server=utf8mb4_unicode_ci
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim
