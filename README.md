@@ -1,5 +1,5 @@
 # coronavirus-api
-Coronavirus API using Kubernetes, Istio, MetalLB and Python
+Coronavirus UK cases by county API using Kubernetes, Istio, MetalLB and Python
 
 # Requirements
 
