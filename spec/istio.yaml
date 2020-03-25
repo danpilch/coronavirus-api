@@ -1,4 +1,18 @@
 ---
+# Enable mtls between apps
+apiVersion: "security.istio.io/v1beta1"
+kind: "PeerAuthentication"
+metadata:
+  name: "coronavirus-peer-policy"
+  namespace: cv
+spec:
+  selector:
+    matchLabels:
+      app: coronavirus
+      app: coronavirus-db
+  mtls:
+    mode: STRICT
+---
 # Implement an istio gateway and assign it to the default
 # ingressgateway
 apiVersion: networking.istio.io/v1beta1
