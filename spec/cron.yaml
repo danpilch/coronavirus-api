@@ -1,0 +1,35 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cv-data-extract
+  namespace: cv
+spec:
+  schedule: "16 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            # Lets disable istio injection for this job because 
+            # the sidecar will never terminate and cause the cronjob
+            # to never succeed
+            sidecar.istio.io/inject: "false"
+        spec:
+          containers:
+          - name: cv-data-extract
+            image: 192.168.0.28:5000/cv-data-extract:3 
+            env:
+            - name: MYSQL_HOST
+              value: coronavirus-db-service
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-config
+                  key: MYSQL_USER_USERNAME
+            - name: MYSQL_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-config
+                  key: MYSQL_USER_PASSWORD
+          restartPolicy: OnFailure
