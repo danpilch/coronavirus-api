@@ -3,8 +3,10 @@ kind: CronJob
 metadata:
   name: cv-data-extract
   namespace: cv
+  labels:
+    app: cv-data-extract
 spec:
-  schedule: "16 * * * *"
+  schedule: "0 * * * *"
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:

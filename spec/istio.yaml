@@ -10,6 +10,7 @@ spec:
     matchLabels:
       app: coronavirus
       app: coronavirus-db
+      app: cv-data-extract
   mtls:
     mode: STRICT
 ---
