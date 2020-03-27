@@ -15,6 +15,7 @@ class Data(object):
         self.api_dataset_filename = os.getenv('API_DATASET_FILENAME', 'CountyUAscasestable.csv')
         # comma-separated columns to use
         self.api_dataset_columns = os.getenv('API_DATASET_COLUMNS', 'GSS_NM,TotalCases').split(',')
+        self.api_dataset_replace_columns = os.getenv('API_DATASET_REPLACE_COLUMNS', 'county_name,cases').split(',')
 
         self.db_host = os.getenv('MYSQL_HOST', '127.0.0.1') 
         self.db_user = os.getenv('MYSQL_USER', 'api')
@@ -45,6 +46,8 @@ class Data(object):
         try:
             engine = sqlalchemy.create_engine(f'mysql+pymysql://{self.db_user}:{self.db_pass}@{self.db_host}/{self.db_name}')
             pd_df = pd.read_csv(self.data_path_file, usecols=self.api_dataset_columns)
+            # Rename columns to frienly names
+            pd_df = pd_df.rename(columns=dict(zip(self.api_dataset_columns, self.api_dataset_replace_columns)))
             # Add a timestamp column of datetimenow
             pd_df['timestamp'] = datetime.datetime.now()
             # push dataframe to sql table

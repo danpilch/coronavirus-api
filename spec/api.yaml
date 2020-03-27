@@ -23,12 +23,12 @@ spec:
       # Stored in local repo
       # (repo setup out of scope)       
       - name: coronavirus
-        image: 192.168.0.28:5000/cv-api:16 
+        image: 192.168.0.28:5000/cv-api:17 
         ports:
         - containerPort: 5000
         env:
         - name: VERSION
-          value: 0.0.16
+          value: 0.0.17
         - name: APP_DEBUG
           value: "false"
         - name: MYSQL_HOST

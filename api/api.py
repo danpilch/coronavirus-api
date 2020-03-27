@@ -33,43 +33,45 @@ app_port = os.getenv('APP_PORT', 5000)
 
 class ItemTable(Table):
     classes = ['table', 'table-striped', 'table-bordered', 'table-condensed']
-    GSS_NM = Col('GSS_NM')
-    TotalCases = Col('TotalCases')
+    county_name = Col('county_name')
+    cases = Col('cases')
+    timestamp = Col('timestamp')
 
 class County(db.Model):
     __tablename__ = db_table
     id = db.Column(db.BigInteger, primary_key=True)
-    GSS_NM = db.Column(db.Text, unique=True, nullable=False)
-    TotalCases = db.Column(db.BigInteger, unique=True, nullable=False)
+    county_name = db.Column(db.Text, unique=True, nullable=False)
+    cases = db.Column(db.BigInteger, unique=True, nullable=False)
+    timestamp = db.Column(db.DateTime, unique=True, nullable=False)
 
 class CountySchema(ma.ModelSchema):
     class Meta:
-        fields = ["GSS_NM", "TotalCases"]
+        fields = ["county_name", "cases", "timestamp"]
 
 county_schema = CountySchema()
 countys_schema = CountySchema(many=True)
 
 class CountyListResource(Resource):
     def get(self):
-        items = County.query.order_by(County.TotalCases.desc()).all()
+        items = County.query.order_by(County.cases.desc()).all()
         return countys_schema.dump(items)
 
 # To display a table we have to use a basic flask route
 @app.route("/table/county/all")
 def get():
-    items = County.query.order_by(County.TotalCases.desc()).all()
+    items = County.query.order_by(County.cases.desc()).all()
     print(items)
     table = ItemTable(items)
     return table.__html__()
 
 class CountySearchResource(Resource):
     def get(self, query):
-        search = County.query.filter(County.GSS_NM.like(f"%{query}%")).all()
+        search = County.query.filter(County.county_name.like(f"%{query}%")).all()
         return countys_schema.dump(search)
 
 class CountyTotalResource(Resource):
     def get(self):
-        total = County.query.with_entities(func.sum(County.TotalCases).label('total')).scalar()
+        total = County.query.with_entities(func.sum(County.cases).label('total')).scalar()
         return {'total': int(total)}
 
 class Version(Resource):
