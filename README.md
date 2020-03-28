@@ -10,6 +10,9 @@ This guide assumes you have:
 - Istioctl 1.5.0+ installed
 
 # Installation
-Edit `apply.sh` and make modifications to variables (notably passwords) and then execute the script.
+Edit `apply.sh` and make modifications to variables if required and then execute the script.
 
-`./apply.sh`
+```
+# Replace with secure passwords
+MYSQL_ROOT_PASSWORD='PASSWORD' MYSQL_USER_PASSWORD='PASSWORD' ./apply.sh
+```

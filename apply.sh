@@ -5,9 +5,6 @@ NAMESPACE=cv
 # MySQL config
 MYSQL_DATABASE_NAME=${NAMESPACE}
 MYSQL_USER_USERNAME='api'
-# Plaintext, replace password with something more secure
-MYSQL_USER_PASSWORD='PASSWORD'
-MYSQL_ROOT_PASSWORD='PASSWORD'
 # Istio config
 ISTIO_PROFILE=demo
 
