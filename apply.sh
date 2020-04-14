@@ -36,8 +36,6 @@ else
 echo "unknown arg"
 fi
 
-# Enable istio sidecar auto injection for namespace
-kubectl label namespace $NAMESPACE istio-injection=enabled --overwrite
 
 # Read more at https://istio.io/docs/tasks/traffic-management/ingress/ingress-certmgr/
 # Patch install to define tls ingress usage
@@ -53,6 +51,9 @@ kubectl $STATE -f ./spec/certificates.yaml
 
 # Namespace
 kubectl $STATE -f ./spec/namespace.yaml
+
+# Enable istio sidecar auto injection for namespace
+kubectl label namespace $NAMESPACE istio-injection=enabled --overwrite
 
 # Database secrets dynamic generation
 cat <<EOF | kubectl $STATE -f -
