@@ -33,6 +33,7 @@ istioctl manifest generate \
   --set values.global.k8sIngress.enableHttps=true \
   --set values.global.k8sIngress.gatewayName=ingressgateway | kubectl delete -f -
 else
+echo "unknown arg"
 fi
 
 # Enable istio sidecar auto injection for namespace
