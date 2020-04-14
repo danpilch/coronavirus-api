@@ -45,6 +45,7 @@ kubectl -n istio-system \
 
 # Install certmanager
 kubectl $STATE -f https://github.com/jetstack/cert-manager/releases/download/$CERT_MANAGER_VERSION/cert-manager.yaml
+sleep 20s
 
 # Certificate config
 kubectl $STATE -f ./spec/certificates.yaml
