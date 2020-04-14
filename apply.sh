@@ -16,12 +16,24 @@ STATE=${1:-apply}
 kubectl $STATE -f ./spec/metal.yaml
 
 # Istio installation
+if [[ $STATE = "apply" ]]
+then
 istioctl manifest apply \
   --set profile=$ISTIO_PROFILE \
   --set values.gateways.istio-ingressgateway.sds.enabled=true \
   --set values.global.k8sIngress.enabled=true \
   --set values.global.k8sIngress.enableHttps=true \
+  --set values.global.k8sIngress.gatewayName=ingressgateway
+elif [[ $STATE = "delete" ]]
+then 
+istioctl manifest generate \
+  --set profile=$ISTIO_PROFILE \
+  --set values.gateways.istio-ingressgateway.sds.enabled=true \
+  --set values.global.k8sIngress.enabled=true \
+  --set values.global.k8sIngress.enableHttps=true \
   --set values.global.k8sIngress.gatewayName=ingressgateway | kubectl delete -f -
+else
+fi
 
 # Enable istio sidecar auto injection for namespace
 kubectl label namespace $NAMESPACE istio-injection=enabled --overwrite
