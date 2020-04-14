@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash 
 
 # Kubernetes namespace to use for application
 NAMESPACE=cv
@@ -9,9 +9,11 @@ MYSQL_USER_USERNAME='api'
 ISTIO_PROFILE=demo
 # Cert Manager config
 CERT_MANAGER_VERSION=v0.14.2
+# State (apply/delete)
+STATE=${1:-apply} 
 
 # Metallb config
-kubectl apply -f ./spec/metal.yaml
+kubectl $STATE -f ./spec/metal.yaml
 
 # Istio installation
 istioctl manifest apply \
@@ -19,7 +21,7 @@ istioctl manifest apply \
   --set values.gateways.istio-ingressgateway.sds.enabled=true \
   --set values.global.k8sIngress.enabled=true \
   --set values.global.k8sIngress.enableHttps=true \
-  --set values.global.k8sIngress.gatewayName=ingressgateway
+  --set values.global.k8sIngress.gatewayName=ingressgateway | kubectl delete -f -
 
 # Enable istio sidecar auto injection for namespace
 kubectl label namespace $NAMESPACE istio-injection=enabled --overwrite
@@ -31,16 +33,16 @@ kubectl -n istio-system \
         -p='[{"op": "replace", "path": "/spec/servers/1/tls", "value": {"credentialName": "ingress-cert", "mode": "SIMPLE", "privateKey": "sds", "serverCertificate": "sds"}}]'
 
 # Install certmanager
-kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/$CERT_MANAGER_VERSION/cert-manager.yaml
+kubectl $STATE --validate=false -f https://github.com/jetstack/cert-manager/releases/download/$CERT_MANAGER_VERSION/cert-manager.yaml
 
 # Certificate config
-kubectl apply -f ./spec/certificates.yaml
+kubectl $STATE -f ./spec/certificates.yaml
 
 # Namespace
-kubectl apply -f ./spec/namespace.yaml
+kubectl $STATE -f ./spec/namespace.yaml
 
 # Database secrets dynamic generation
-cat <<EOF | kubectl apply -f -
+cat <<EOF | kubectl $STATE -f -
 apiVersion: v1
 kind: Secret
 metadata:
@@ -55,13 +57,13 @@ data:
 EOF
 
 # Database
-kubectl apply -f ./spec/database.yaml
+kubectl $STATE -f ./spec/database.yaml
 
 # Rest API
-kubectl apply -f ./spec/api.yaml
+kubectl $STATE -f ./spec/api.yaml
 
 # Cron Jobs
-kubectl apply -f ./spec/cron.yaml
+kubectl $STATE -f ./spec/cron.yaml
 
 # Istio config
-kubectl apply -f ./spec/istio.yaml
+kubectl $STATE -f ./spec/istio.yaml
