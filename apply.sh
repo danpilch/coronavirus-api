@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # Kubernetes namespace to use for application
 NAMESPACE=cv
@@ -20,7 +20,7 @@ istioctl manifest apply \
   --set values.global.k8sIngress.gatewayName=ingressgateway
 
 # Enable istio sidecar auto injection for namespace
-kubectl label namespace $NAMESPACE istio-injection=enabled
+kubectl label namespace $NAMESPACE istio-injection=enabled --overwrite
 
 # Read more at https://istio.io/docs/tasks/traffic-management/ingress/ingress-certmgr/
 # Patch install to define tls ingress usage
