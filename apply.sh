@@ -46,7 +46,7 @@ kubectl -n istio-system \
         -p='[{"op": "replace", "path": "/spec/servers/1/tls", "value": {"credentialName": "ingress-cert", "mode": "SIMPLE", "privateKey": "sds", "serverCertificate": "sds"}}]'
 
 # Install certmanager
-kubectl $STATE --validate=false -f https://github.com/jetstack/cert-manager/releases/download/$CERT_MANAGER_VERSION/cert-manager.yaml
+kubectl $STATE -f https://github.com/jetstack/cert-manager/releases/download/$CERT_MANAGER_VERSION/cert-manager.yaml
 
 # Certificate config
 kubectl $STATE -f ./spec/certificates.yaml
