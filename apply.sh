@@ -30,6 +30,7 @@ if [[ $STATE = "apply" ]]
 then
 istioctl manifest apply \
   --set profile=$ISTIO_PROFILE \
+  --set components.cni.enabled=true \
   --set values.gateways.istio-ingressgateway.sds.enabled=true \
   --set values.global.k8sIngress.enabled=true \
   --set values.global.k8sIngress.enableHttps=true \
