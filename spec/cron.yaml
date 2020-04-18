@@ -20,7 +20,7 @@ spec:
         spec:
           containers:
           - name: cv-data-extract
-            image: 192.168.0.28:5000/cv-data-extract:5 
+            image: danpilch/cv-data:1 
             env:
             - name: MYSQL_HOST
               value: coronavirus-db-service
