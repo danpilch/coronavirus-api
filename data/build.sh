@@ -1,8 +1,8 @@
 #!/bin/bash
 
-PROJECT_NAME=cv-data-extract
+PROJECT_NAME=cv-data
 # Local repo, you will need to change this
-DOCKER_REPO=192.168.0.28:5000
+DOCKER_REPO=danpilch
 CURRENT_TAG=$(docker images $PROJECT_NAME --format '{{.Tag}}' | sort -h -r | head -n1)
 NEW_TAG=$((${CURRENT_TAG}+1))
 
