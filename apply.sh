@@ -25,9 +25,6 @@ sleep 10s
 kubectl $STATE -f https://github.com/jetstack/cert-manager/releases/download/$CERT_MANAGER_VERSION/cert-manager.yaml
 sleep 20s
 
-# Certificate config
-kubectl $STATE -f ./spec/certificates.yaml
-
 # Istio installation
 if [[ $STATE = "apply" ]]
 then
@@ -48,7 +45,10 @@ istioctl manifest generate \
 else
 echo "unknown arg"
 fi
+sleep 20s
 
+# Certificate config
+kubectl $STATE -f ./spec/certificates.yaml
 
 # Read more at https://istio.io/docs/tasks/traffic-management/ingress/ingress-certmgr/
 # Patch install to define tls ingress usage
